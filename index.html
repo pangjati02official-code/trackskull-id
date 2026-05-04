@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackSkull.id - Manajemen Ekskul SMPN 2 Gunung Jati</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .transition-all { transition: all 0.2s ease; }
+    .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body class="bg-gray-100">
+
+<!-- Login Page -->
+<div id="loginPage" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-800 to-indigo-900">
+  <div class="bg-white/10 backdrop-blur-md p-10 rounded-3xl shadow-2xl w-96 border border-white/20">
+    <div class="text-center mb-6">
+      <div class="w-20 h-20 mx-auto bg-white/20 rounded-2xl flex items-center justify-center mb-3">
+        <i class="fas fa-trophy text-5xl text-white"></i>
+      </div>
+      <h1 class="text-4xl font-bold text-white">TrackSkull.id</h1>
+      <p class="text-blue-100 mt-2">Track Record Ekstrakurikuler</p>
+      <p class="text-blue-200 text-sm mt-1">SMP Negeri 2 Gunung Jati</p>
+    </div>
+    <select id="loginRole" class="w-full p-4 bg-white/20 border border-white/30 rounded-2xl mb-4 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white">
+      <option value="siswa">Siswa</option>
+      <option value="pelatih">Pelatih</option>
+      <option value="admin">Admin</option>
+    </select>
+    <input id="loginEmail" type="email" placeholder="Email" class="w-full p-4 bg-white/20 border border-white/30 rounded-2xl mb-4 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white">
+    <input id="loginPassword" type="password" placeholder="Password" class="w-full p-4 bg-white/20 border border-white/30 rounded-2xl mb-6 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white">
+    <button onclick="login()" class="w-full bg-white text-blue-700 hover:bg-gray-100 py-4 rounded-2xl font-bold text-lg transition-all">MASUK</button>
+    <p class="text-center text-white mt-4">Belum punya akun? <button onclick="showRegister()" class="underline font-semibold">Daftar sebagai Siswa</button></p>
+  </div>
+</div>
+
+<!-- Register Page -->
+<div id="registerPage" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-800 to-indigo-900 p-4">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl p-8">
+    <div class="text-center mb-4">
+      <i class="fas fa-user-graduate text-4xl text-blue-600"></i>
+      <h2 class="text-3xl font-bold text-gray-800">Daftar Akun Siswa</h2>
+      <p class="text-gray-500">TrackSkull.id - SMPN 2 Gunung Jati</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <input id="regFullname" type="text" placeholder="Nama Lengkap" class="p-3 border rounded-xl focus:ring-2 focus:ring-blue-500">
+      <input id="regEmail" type="email" placeholder="Email" class="p-3 border rounded-xl focus:ring-2 focus:ring-blue-500">
+      <input id="regPassword" type="password" placeholder="Password" class="p-3 border rounded-xl focus:ring-2 focus:ring-blue-500">
+      <input id="regPhone" type="tel" placeholder="No Telepon" class="p-3 border rounded-xl">
+      <select id="regGender" class="p-3 border rounded-xl">
+        <option value="">Jenis Kelamin</option>
+        <option value="Laki-laki">Laki-laki</option>
+        <option value="Perempuan">Perempuan</option>
+      </select>
+      <input id="regBirth" type="date" class="p-3 border rounded-xl">
+      <select id="regEkskul" onchange="togglePMRField()" class="p-3 border rounded-xl">
+        <option value="">Pilih Ekskul</option>
+        <option value="Pramuka">Pramuka</option>
+        <option value="Paskibra">Paskibra</option>
+        <option value="PMR">PMR</option>
+      </select>
+      <input id="regPMRField" type="text" placeholder="Bidang PMR (Wira/Remaja/Madya)" class="p-3 border rounded-xl hidden">
+      <input id="regPhotoUrl" type="text" placeholder="URL Foto Profil (opsional)" class="p-3 border rounded-xl">
+    </div>
+    <button onclick="register()" class="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold text-lg">DAFTAR SEKARANG</button>
+    <button onclick="showLogin()" class="mt-3 w-full text-gray-500 hover:text-gray-700 py-2 rounded-xl">← Kembali ke Login</button>
+  </div>
+</div>
+
+<!-- Dashboard Utama -->
+<div id="dashboard" class="hidden">
+  <nav class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-4 shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center">
+      <div class="flex items-center gap-2">
+        <i class="fas fa-trophy text-2xl"></i>
+        <h1 class="text-2xl font-bold">TrackSkull.id</h1>
+        <span class="text-xs bg-white/20 px-2 py-1 rounded-full">SMPN 2 Gunung Jati</span>
+      </div>
+      <div class="flex flex-wrap gap-3 items-center">
+        <button onclick="showHome()" id="navHome" class="nav-btn px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 transition">🏠 Beranda</button>
+        <button onclick="showJadwal()" id="navJadwal" class="nav-btn px-4 py-2 rounded-xl hover:bg-white/30 transition">📅 Jadwal & Absen</button>
+        <button onclick="showEvaluasi()" id="navEvaluasi" class="nav-btn px-4 py-2 rounded-xl hover:bg-white/30 transition">⭐ Evaluasi</button>
+        <button onclick="showLaporan()" id="navLaporan" class="nav-btn px-4 py-2 rounded-xl hover:bg-white/30 transition">📋 Laporan</button>
+        <button onclick="showRiwayat()" id="navRiwayat" class="nav-btn px-4 py-2 rounded-xl hover:bg-white/30 transition">📊 Riwayat</button>
+        <button onclick="showRekap()" id="navRekap" class="nav-btn px-4 py-2 rounded-xl hover:bg-white/30 transition">📈 Rekap</button>
+        <button id="adminPanelBtn" onclick="showAdminPanel()" class="hidden nav-btn px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 transition">🔧 Admin</button>
+        <button onclick="showEditProfile()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-xl transition"><i class="fas fa-user-edit"></i> Profil</button>
+        <button onclick="logout()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-xl transition">🚪 Keluar</button>
+      </div>
+    </div>
+  </nav>
+  <div class="max-w-7xl mx-auto p-6" id="mainContent"></div>
+</div>
+
+<script>
+// ==================== DATA GLOBAL ====================
+let users = JSON.parse(localStorage.getItem('users_trackskull')) || [];
+let absensiList = JSON.parse(localStorage.getItem('absensi_trackskull')) || [];
+let jadwalDasar = JSON.parse(localStorage.getItem('jadwalDasar_trackskull')) || [];
+let jadwalTambahan = JSON.parse(localStorage.getItem('jadwalTambahan_trackskull')) || [];
+let jadwalLibur = JSON.parse(localStorage.getItem('jadwalLibur_trackskull')) || [];
+let jadwalEvent = JSON.parse(localStorage.getItem('jadwalEvent_trackskull')) || [];
+let laporanHarian = JSON.parse(localStorage.getItem('laporan_trackskull')) || [];
+let evaluasiList = JSON.parse(localStorage.getItem('evaluasi_trackskull')) || [];
+let currentUser = null;
+
+// Default admin
+if (!users.some(u => u.role === 'admin')) {
+  users.push({ id: 'admin1', fullname: 'Administrator', email: 'admin@trackskull.id', password: 'admin123', role: 'admin', ekskul: 'Semua', phone: '08123456789', gender: 'Laki-laki', birth: '1990-01-01', foto: 'https://ui-avatars.com/api/?background=2563eb&color=fff&name=Admin&size=128', createdAt: new Date().toISOString() });
+}
+
+// Default pelatih
+if (!users.some(u => u.email === 'pelatih@pramuka.id')) {
+  users.push({ id: 'pelatih1', fullname: 'Bapak Slamet Riyadi', email: 'pelatih@pramuka.id', password: '12345', role: 'pelatih', ekskul: 'Pramuka', phone: '08123456788', gender: 'Laki-laki', birth: '1985-05-10', foto: 'https://ui-avatars.com/api/?background=2563eb&color=fff&name=Slamet&size=128', createdAt: new Date().toISOString() });
+}
+if (!users.some(u => u.email === 'pelatih@paskibra.id')) {
+  users.push({ id: 'pelatih2', fullname: 'Ibu Dewi Kartika', email: 'pelatih@paskibra.id', password: '12345', role: 'pelatih', ekskul: 'Paskibra', phone: '08123456789', gender: 'Perempuan', birth: '1990-03-15', foto: 'https://ui-avatars.com/api/?background=2563eb&color=fff&name=Dewi&size=128', createdAt: new Date().toISOString() });
+}
+if (!users.some(u => u.email === 'pelatih@pmr.id')) {
+  users.push({ id: 'pelatih3', fullname: 'Ibu Siti Nurjanah', email: 'pelatih@pmr.id', password: '12345', role: 'pelatih', ekskul: 'PMR', phone: '08123456780', gender: 'Perempuan', birth: '1988-07-20', foto: 'https://ui-avatars.com/api/?background=2563eb&color=fff&name=Siti&size=128', createdAt: new Date().toISOString() });
+}
+saveUsers();
+
+// Default jadwal dasar (rutin mingguan)
+if (jadwalDasar.length === 0) {
+  jadwalDasar = [
+    { id: 'j1', ekskul: 'Pramuka', hari: 'Jumat', jamMulai: '14:00', jamSelesai: '16:00', lokasi: 'Lapangan Belakang', pembina: 'Bapak Slamet' },
+    { id: 'j2', ekskul: 'Paskibra', hari: 'Senin', jamMulai: '15:00', jamSelesai: '17:00', lokasi: 'Halaman Utama', pembina: 'Ibu Dewi' },
+    { id: 'j3', ekskul: 'PMR', hari: 'Rabu', jamMulai: '14:30', jamSelesai: '16:30', lokasi: 'Ruang UKS', pembina: 'Ibu Siti' }
+  ];
+  saveJadwalDasar();
+}
+
+function saveUsers() { localStorage.setItem('users_trackskull', JSON.stringify(users)); }
+function saveAbsensi() { localStorage.setItem('absensi_trackskull', JSON.stringify(absensiList)); }
+function saveJadwalDasar() { localStorage.setItem('jadwalDasar_trackskull', JSON.stringify(jadwalDasar)); }
+function saveJadwalTambahan() { localStorage.setItem('jadwalTambahan_trackskull', JSON.stringify(jadwalTambahan)); }
+function saveJadwalLibur() { localStorage.setItem('jadwalLibur_trackskull', JSON.stringify(jadwalLibur)); }
+function saveJadwalEvent() { localStorage.setItem('jadwalEvent_trackskull', JSON.stringify(jadwalEvent)); }
+function saveLaporan() { localStorage.setItem('laporan_trackskull', JSON.stringify(laporanHarian)); }
+function saveEvaluasi() { localStorage.setItem('evaluasi_trackskull', JSON.stringify(evaluasiList)); }
+
+function togglePMRField() { const ekskul = document.getElementById('regEkskul').value; document.getElementById('regPMRField').classList.toggle('hidden', ekskul !== 'PMR'); }
+
+// Helper: cek apakah tanggal libur
+function isLibur(tanggal, ekskul) { return jadwalLibur.some(l => l.tanggal === tanggal && l.ekskul === ekskul); }
+
+// Helper: dapatkan jadwal untuk tanggal tertentu
+function getJadwalForDate(tanggal, ekskul) {
+  const date = new Date(tanggal);
+  const hariIndo = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'][date.getDay()];
+  // Cek jadwal tambahan dulu
+  const tambahan = jadwalTambahan.find(j => j.tanggal === tanggal && j.ekskul === ekskul);
+  if (tambahan) return tambahan;
+  // Cek event
+  const event = jadwalEvent.find(j => j.tanggal === tanggal && j.ekskul === ekskul);
+  if (event) return event;
+  // Cek jadwal dasar
+  const dasar = jadwalDasar.find(j => j.ekskul === ekskul && j.hari === hariIndo);
+  return dasar || null;
+}
+
+// ==================== AUTHENTICATION ====================
+function showRegister() { document.getElementById('loginPage').classList.add('hidden'); document.getElementById('registerPage').classList.remove('hidden'); }
+function showLogin() { document.getElementById('registerPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); }
+
+function register() {
+  const fullname = document.getElementById('regFullname').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const phone = document.getElementById('regPhone').value;
+  const gender = document.getElementById('regGender').value;
+  const birth = document.getElementById('regBirth').value;
+  let ekskul = document.getElementById('regEkskul').value;
+  const pmrField = document.getElementById('regPMRField').value;
+  let foto = document.getElementById('regPhotoUrl').value.trim();
+  if (!fullname || !email || !password || !ekskul) return alert('Harap isi semua field wajib!');
+  if (users.some(u => u.email === email)) return alert('Email sudah terdaftar!');
+  if (ekskul === 'PMR' && !pmrField) return alert('Untuk PMR, wajib mengisi bidang PMR (Wira/Remaja/Madya)');
+  if (!foto) foto = `https://ui-avatars.com/api/?background=2563eb&color=fff&name=${fullname.replace(' ', '+')}&size=128`;
+  users.push({ id: Date.now().toString(), fullname, email, password, role: 'siswa', ekskul, pmrBidang: ekskul === 'PMR' ? pmrField : null, phone: phone || '-', gender: gender || '-', birth: birth || '-', foto, createdAt: new Date().toISOString() });
+  saveUsers();
+  alert('Pendaftaran berhasil! Silakan login.');
+  showLogin();
+}
+
+function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const role = document.getElementById('loginRole').value;
+  const user = users.find(u => u.email === email && u.password === password && u.role === role);
+  if (!user) return alert('Email, password, atau role salah!');
+  currentUser = user;
+  localStorage.setItem('currentUser_trackskull', JSON.stringify(currentUser));
+  showDashboard();
+}
+
+function logout() { localStorage.removeItem('currentUser_trackskull'); location.reload(); }
+
+// ==================== EDIT PROFILE ====================
+function showEditProfile() {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="bg-white rounded-3xl shadow-xl p-6 max-w-2xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6"><i class="fas fa-user-edit text-blue-600"></i> Edit Profil</h2>
+      <div class="text-center mb-6"><img src="${currentUser.foto}" class="w-32 h-32 mx-auto rounded-full border-4 border-blue-600 object-cover" id="profilePreview"><button onclick="document.getElementById('uploadPhoto').click()" class="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">Ganti Foto</button><input type="file" id="uploadPhoto" accept="image/*" class="hidden" onchange="uploadPhoto(event)"><input type="text" id="photoUrlInput" placeholder="Atau masukkan URL foto" class="mt-2 w-full p-2 border rounded-lg"></div>
+      <div class="grid grid-cols-1 gap-4"><input type="text" id="editFullname" value="${currentUser.fullname}" placeholder="Nama Lengkap" class="p-3 border rounded-xl"><input type="tel" id="editPhone" value="${currentUser.phone}" placeholder="No Telepon" class="p-3 border rounded-xl"><select id="editGender" class="p-3 border rounded-xl"><option value="Laki-laki" ${currentUser.gender === 'Laki-laki' ? 'selected' : ''}>Laki-laki</option><option value="Perempuan" ${currentUser.gender === 'Perempuan' ? 'selected' : ''}>Perempuan</option></select><input type="date" id="editBirth" value="${currentUser.birth}" class="p-3 border rounded-xl"></div>
+      <button onclick="saveProfile()" class="mt-6 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold">Simpan Perubahan</button>
+      <div class="mt-8 border-t pt-6"><h3 class="text-xl font-bold mb-4"><i class="fas fa-key text-yellow-600"></i> Ganti Kata Sandi</h3><div class="grid grid-cols-1 gap-4"><input type="password" id="oldPassword" placeholder="Kata Sandi Lama" class="p-3 border rounded-xl"><input type="password" id="newPassword" placeholder="Kata Sandi Baru" class="p-3 border rounded-xl"><input type="password" id="confirmPassword" placeholder="Konfirmasi Kata Sandi Baru" class="p-3 border rounded-xl"></div><button onclick="gantiPassword()" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-xl font-bold">Ganti Kata Sandi</button></div>
+    </div>
+  `;
+  document.getElementById('photoUrlInput').addEventListener('input', function() { if (this.value) document.getElementById('profilePreview').src = this.value; });
+}
+
+function gantiPassword() {
+  const oldPass = document.getElementById('oldPassword').value, newPass = document.getElementById('newPassword').value, confirmPass = document.getElementById('confirmPassword').value;
+  if (!oldPass || !newPass || !confirmPass) return alert('Harap isi semua field!');
+  if (oldPass !== currentUser.password) return alert('Kata sandi lama salah!');
+  if (newPass !== confirmPass) return alert('Konfirmasi kata sandi baru tidak cocok!');
+  if (newPass.length < 4) return alert('Kata sandi baru minimal 4 karakter!');
+  currentUser.password = newPass;
+  const index = users.findIndex(u => u.id === currentUser.id);
+  if (index !== -1) users[index] = currentUser;
+  saveUsers();
+  localStorage.setItem('currentUser_trackskull', JSON.stringify(currentUser));
+  alert('Kata sandi berhasil diubah!');
+}
+
+function uploadPhoto(event) { const file = event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = e => { document.getElementById('profilePreview').src = e.target.result; document.getElementById('photoUrlInput').value = e.target.result; }; reader.readAsDataURL(file); } }
+function saveProfile() {
+  currentUser.fullname = document.getElementById('editFullname').value;
+  currentUser.phone = document.getElementById('editPhone').value;
+  currentUser.gender = document.getElementById('editGender').value;
+  currentUser.birth = document.getElementById('editBirth').value;
+  const newPhoto = document.getElementById('photoUrlInput').value;
+  if (newPhoto) currentUser.foto = newPhoto;
+  const index = users.findIndex(u => u.id === currentUser.id);
+  if (index !== -1) users[index] = currentUser;
+  saveUsers();
+  localStorage.setItem('currentUser_trackskull', JSON.stringify(currentUser));
+  alert('Profil berhasil diperbarui!');
+  showHome();
+}
+
+function showDashboard() {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('registerPage').classList.add('hidden');
+  document.getElementById('dashboard').classList.remove('hidden');
+  document.getElementById('adminPanelBtn').classList.toggle('hidden', currentUser.role !== 'admin');
+  showHome();
+}
+
+function setActiveNav(activeId) {
+  ['navHome', 'navJadwal', 'navEvaluasi', 'navLaporan', 'navRiwayat', 'navRekap'].forEach(id => { const btn = document.getElementById(id); if (btn) btn.classList.remove('bg-white/30'); });
+  if (activeId) document.getElementById(activeId)?.classList.add('bg-white/30');
+}
+
+function showHome() {
+  setActiveNav('navHome');
+  document.getElementById('mainContent').innerHTML = `
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="bg-white rounded-3xl shadow-xl p-6 text-center card-hover"><img src="${currentUser.foto}" class="w-32 h-32 mx-auto rounded-full border-4 border-blue-600 object-cover"><h2 class="mt-4 text-2xl font-bold">${currentUser.fullname}</h2><p class="text-blue-600 font-semibold"><i class="fas fa-trophy"></i> ${currentUser.role === 'pelatih' ? 'Pelatih ' : ''}${currentUser.ekskul}</p><div class="mt-4 text-left space-y-2 text-sm text-gray-600"><p><i class="fas fa-envelope"></i> ${currentUser.email}</p><p><i class="fas fa-phone"></i> ${currentUser.phone}</p></div></div>
+      <div class="md:col-span-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl shadow-xl p-6"><h3 class="text-xl font-bold mb-3">Selamat Datang di TrackSkull.id</h3><p class="text-gray-600">Sistem manajemen ekstrakurikuler SMP Negeri 2 Gunung Jati.</p><div class="mt-4 grid grid-cols-2 gap-3"><div class="bg-white p-3 rounded-xl text-center"><i class="fas fa-calendar-check text-blue-600 text-2xl"></i><p class="font-bold mt-1">${absensiList.filter(a => a.userId === currentUser.id && a.jenis === 'Masuk').length}</p><p class="text-xs">Total Kehadiran</p></div><div class="bg-white p-3 rounded-xl text-center"><i class="fas fa-star text-yellow-500 text-2xl"></i><p class="font-bold mt-1">${evaluasiList.filter(e => e.userId === currentUser.id).length}</p><p class="text-xs">Evaluasi</p></div></div></div>
+    </div>
+  `;
+}
+
+// ==================== JADWAL & ABSEN (dengan fitur baru) ====================
+function showJadwal() {
+  setActiveNav('navJadwal');
+  const today = new Date().toISOString().split('T')[0];
+  const tanggalSekarang = today;
+  const jadwalHariIni = getJadwalForDate(tanggalSekarang, currentUser.ekskul);
+  const isLiburHariIni = isLibur(tanggalSekarang, currentUser.ekskul);
+  const sudahMasuk = sudahAbsenHariIni('Masuk');
+  const sudahKeluar = sudahAbsenHariIni('Keluar');
+  const tanggalDisplay = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  
+  // Hitung jadwal mendatang (7 hari ke depan)
+  let jadwalMendatang = [];
+  for (let i = 1; i <= 14; i++) {
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + i);
+    const dateStr = futureDate.toISOString().split('T')[0];
+    const jadwal = getJadwalForDate(dateStr, currentUser.ekskul);
+    if (jadwal && !isLibur(dateStr, currentUser.ekskul)) {
+      jadwalMendatang.push({ tanggal: dateStr, jadwal: jadwal });
+    }
+  }
+  
+  let html = `<div class="bg-white rounded-3xl shadow-xl p-6"><h2 class="text-2xl font-bold mb-4"><i class="fas fa-calendar-alt text-blue-600"></i> Jadwal & Absen - ${currentUser.ekskul}</h2>`;
+  
+  // Jadwal Hari Ini
+  html += `<div class="mb-6"><h3 class="text-lg font-bold text-green-700 mb-2"><i class="fas fa-calendar-day"></i> Hari Ini - ${tanggalDisplay}</h3>`;
+  if (isLiburHariIni) {
+    html += `<div class="bg-red-100 p-4 rounded-xl border-l-4 border-red-500"><p class="text-red-700 font-bold"><i class="fas fa-ban"></i> LIBUR! Tidak ada kegiatan hari ini.</p></div>`;
+  } else if (jadwalHariIni) {
+    html += `<div class="bg-green-50 p-4 rounded-xl border-l-4 border-green-500"><p class="font-bold">${jadwalHariIni.jenis === 'event' ? '🎉 EVENT: ' + jadwalHariIni.nama : 'Latihan Rutin'}</p><p><i class="fas fa-clock"></i> ${jadwalHariIni.jamMulai} - ${jadwalHariIni.jamSelesai}</p><p><i class="fas fa-map-marker-alt"></i> ${jadwalHariIni.lokasi}</p><p><i class="fas fa-chalkboard-user"></i> Pembina: ${jadwalHariIni.pembina}</p></div>`;
+    // Form Absen
+    html += `<div class="mt-4 p-4 bg-gray-50 rounded-xl"><h4 class="font-bold mb-2">Absen Kegiatan Hari Ini</h4><div class="flex gap-3 flex-wrap"><button onclick="doAbsen('Masuk')" ${sudahMasuk ? 'disabled' : ''} class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg ${sudahMasuk ? 'opacity-50' : ''}"><i class="fas fa-sign-in-alt"></i> Absen Masuk</button><button onclick="doAbsen('Keluar')" ${sudahKeluar ? 'disabled' : ''} class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg ${sudahKeluar ? 'opacity-50' : ''}"><i class="fas fa-sign-out-alt"></i> Absen Pulang</button><button onclick="doAbsenManual('Izin')" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"><i class="fas fa-file-medical"></i> Izin</button><button onclick="doAbsenManual('Sakit')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"><i class="fas fa-thermometer-half"></i> Sakit</button></div></div>`;
+  } else {
+    html += `<div class="bg-gray-100 p-4 rounded-xl"><p class="text-gray-500">Tidak ada jadwal kegiatan untuk hari ini.</p></div>`;
+  }
+  html += `</div>`;
+  
+  // Jadwal Mendatang
+  if (jadwalMendatang.length > 0) {
+    html += `<div><h3 class="text-lg font-bold text-blue-700 mb-2"><i class="fas fa-calendar-week"></i> Jadwal Mendatang</h3><div class="space-y-2">`;
+    jadwalMendatang.slice(0, 7).forEach(j => {
+      const tgl = new Date(j.tanggal).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' });
+      html += `<div class="bg-blue-50 p-3 rounded-xl flex justify-between items-center flex-wrap"><div><p class="font-semibold">${tgl}</p><p>${j.jadwal.jamMulai} - ${j.jadwal.jamSelesai} | ${j.jadwal.lokasi}</p></div><span class="text-xs bg-blue-200 px-2 py-1 rounded-full">${j.jadwal.jenis === 'event' ? 'EVENT' : 'Latihan'}</span></div>`;
+    });
+    html += `</div></div>`;
+  }
+  
+  // Form Tambah Jadwal untuk Pelatih
+  if (currentUser.role === 'pelatih') {
+    html += `
+      <div class="mt-6 border-t pt-4"><h3 class="text-lg font-bold mb-3"><i class="fas fa-plus-circle text-blue-600"></i> Kelola Jadwal - ${currentUser.ekskul}</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <button onclick="showTambahJadwalTambahan()" class="bg-blue-600 text-white py-2 rounded-xl"><i class="fas fa-plus"></i> Tambah Jadwal Khusus (Harian)</button>
+        <button onclick="showTambahEvent()" class="bg-purple-600 text-white py-2 rounded-xl"><i class="fas fa-calendar-plus"></i> Tambah EVENT</button>
+        <button onclick="showTambahLibur()" class="bg-red-600 text-white py-2 rounded-xl"><i class="fas fa-ban"></i> Tandai Libur</button>
+        <button onclick="showHapusLibur()" class="bg-orange-600 text-white py-2 rounded-xl"><i class="fas fa-calendar-check"></i> Hapus Tanda Libur</button>
+      </div>
+      <div class="mt-4"><h4 class="font-bold">Jadwal Dasar (Rutin Setiap Minggu)</h4>`;
+    jadwalDasar.filter(j => j.ekskul === currentUser.ekskul).forEach(j => {
+      html += `<div class="bg-gray-100 p-2 rounded mt-1">${j.hari}, ${j.jamMulai} - ${j.jamSelesai} | ${j.lokasi}</div>`;
+    });
+    html += `</div><div class="mt-3"><h4 class="font-bold">Jadwal Libur</h4>`;
+    jadwalLibur.filter(l => l.ekskul === currentUser.ekskul).forEach(l => {
+      html += `<div class="bg-red-100 p-2 rounded mt-1">${l.tanggal} - ${l.keterangan || 'Libur'}</div>`;
+    });
+    html += `</div><div class="mt-3"><h4 class="font-bold">Jadwal Event</h4>`;
+    jadwalEvent.filter(e => e.ekskul === currentUser.ekskul).forEach(e => {
+      html += `<div class="bg-purple-100 p-2 rounded mt-1">${e.tanggal} - ${e.nama} (${e.jamMulai}-${e.jamSelesai})</div>`;
+    });
+    html += `</div></div>`;
+  }
+  
+  html += `<div class="mt-4 p-3 bg-green-50 rounded-xl text-sm text-green-700"><i class="fas fa-info-circle"></i> 📌 TrackSkull.id - Absen hanya bisa dilakukan jika ada jadwal pada hari tersebut!</div></div>`;
+  document.getElementById('mainContent').innerHTML = html;
+}
+
+function sudahAbsenHariIni(jenis) { const today = new Date().toISOString().split('T')[0]; return absensiList.some(a => a.userId === currentUser.id && a.tanggal === today && a.jenis === jenis); }
+
+function doAbsen(jenis) {
+  const today = new Date().toISOString().split('T')[0];
+  const jadwal = getJadwalForDate(today, currentUser.ekskul);
+  if (isLibur(today, currentUser.ekskul)) return alert('❌ Hari ini LIBUR! Tidak dapat melakukan absen.');
+  if (!jadwal) return alert('❌ Tidak ada jadwal kegiatan pada hari ini! Absen hanya bisa dilakukan sesuai jadwal.');
+  if (sudahAbsenHariIni(jenis)) return alert(`Anda sudah absen ${jenis} hari ini.`);
+  
+  const now = new Date();
+  absensiList.push({ id: Date.now(), userId: currentUser.id, nama: currentUser.fullname, ekskul: currentUser.ekskul, role: currentUser.role, jenis, status: 'Hadir', timestamp: now.toISOString(), tanggal: today, jam: now.toLocaleTimeString('id-ID') });
+  saveAbsensi();
+  alert(`✅ Absen ${jenis === 'Masuk' ? 'Masuk' : 'Pulang'} berhasil pukul ${now.toLocaleTimeString('id-ID')}!`);
+  showJadwal();
+}
+
+function doAbsenManual(kategori) {
+  const today = new Date().toISOString().split('T')[0];
+  const jadwal = getJadwalForDate(today, currentUser.ekskul);
+  if (isLibur(today, currentUser.ekskul)) return alert('❌ Hari ini LIBUR!');
+  if (!jadwal) return alert('❌ Tidak ada jadwal kegiatan hari ini!');
+  const alasan = prompt(`Alasan ${kategori}:`);
+  if (!alasan) return;
+  const now = new Date();
+  absensiList.push({ id: Date.now(), userId: currentUser.id, nama: currentUser.fullname, ekskul: currentUser.ekskul, role: currentUser.role, jenis: kategori, status: kategori, timestamp: now.toISOString(), tanggal: today, jam: now.toLocaleTimeString('id-ID'), alasan });
+  saveAbsensi();
+  alert(`Absen ${kategori} dicatat.`);
+  showJadwal();
+}
+
+// ==================== FUNGSI PELATIH KELOLA JADWAL ====================
+function showTambahJadwalTambahan() {
+  const html = `<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" id="modalJadwal"><div class="bg-white rounded-2xl p-6 w-96"><h3 class="text-xl font-bold mb-4">Tambah Jadwal Khusus</h3>
+    <input type="date" id="tglTambahan" class="w-full p-2 border rounded mb-2">
+    <input type="time" id="jamMulaiTambahan" class="w-full p-2 border rounded mb-2">
+    <input type="time" id="jamSelesaiTambahan" class="w-full p-2 border rounded mb-2">
+    <input type="text" id="lokasiTambahan" placeholder="Lokasi" class="w-full p-2 border rounded mb-2">
+    <input type="text" id="pembinaTambahan" placeholder="Pembina" class="w-full p-2 border rounded mb-4">
+    <div class="flex gap-2"><button onclick="simpanJadwalTambahan()" class="flex-1 bg-green-600 text-white py-2 rounded">Simpan</button><button onclick="tutupModal()" class="flex-1 bg-gray-300 py-2 rounded">Batal</button></div></div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function simpanJadwalTambahan() {
+  const tanggal = document.getElementById('tglTambahan').value;
+  const jamMulai = document.getElementById('jamMulaiTambahan').value;
+  const jamSelesai = document.getElementById('jamSelesaiTambahan').value;
+  const lokasi = document.getElementById('lokasiTambahan').value;
+  const pembina = document.getElementById('pembinaTambahan').value;
+  if (!tanggal || !jamMulai || !jamSelesai || !lokasi || !pembina) return alert('Lengkapi data!');
+  jadwalTambahan.push({ id: Date.now().toString(), ekskul: currentUser.ekskul, tanggal, jamMulai, jamSelesai, lokasi, pembina, jenis: 'tambahan' });
+  saveJadwalTambahan();
+  tutupModal();
+  alert('Jadwal tambahan berhasil ditambahkan!');
+  showJadwal();
+}
+
+function showTambahEvent() {
+  const html = `<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" id="modalJadwal"><div class="bg-white rounded-2xl p-6 w-96"><h3 class="text-xl font-bold mb-4">Tambah EVENT</h3>
+    <input type="text" id="namaEvent" placeholder="Nama Event" class="w-full p-2 border rounded mb-2">
+    <input type="date" id="tglEvent" class="w-full p-2 border rounded mb-2">
+    <input type="time" id="jamMulaiEvent" class="w-full p-2 border rounded mb-2">
+    <input type="time" id="jamSelesaiEvent" class="w-full p-2 border rounded mb-2">
+    <input type="text" id="lokasiEvent" placeholder="Lokasi" class="w-full p-2 border rounded mb-2">
+    <input type="text" id="pembinaEvent" placeholder="Pembina" class="w-full p-2 border rounded mb-4">
+    <div class="flex gap-2"><button onclick="simpanEvent()" class="flex-1 bg-purple-600 text-white py-2 rounded">Simpan</button><button onclick="tutupModal()" class="flex-1 bg-gray-300 py-2 rounded">Batal</button></div></div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function simpanEvent() {
+  const nama = document.getElementById('namaEvent').value;
+  const tanggal = document.getElementById('tglEvent').value;
+  const jamMulai = document.getElementById('jamMulaiEvent').value;
+  const jamSelesai = document.getElementById('jamSelesaiEvent').value;
+  const lokasi = document.getElementById('lokasiEvent').value;
+  const pembina = document.getElementById('pembinaEvent').value;
+  if (!nama || !tanggal || !jamMulai || !jamSelesai || !lokasi || !pembina) return alert('Lengkapi data!');
+  jadwalEvent.push({ id: Date.now().toString(), ekskul: currentUser.ekskul, nama, tanggal, jamMulai, jamSelesai, lokasi, pembina, jenis: 'event' });
+  saveJadwalEvent();
+  tutupModal();
+  alert('Event berhasil ditambahkan!');
+  showJadwal();
+}
+
+function showTambahLibur() {
+  const html = `<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" id="modalJadwal"><div class="bg-white rounded-2xl p-6 w-96"><h3 class="text-xl font-bold mb-4">Tandai Libur</h3>
+    <input type="date" id="tglLibur" class="w-full p-2 border rounded mb-2">
+    <input type="text" id="ketLibur" placeholder="Keterangan (cth: Libur Nasional)" class="w-full p-2 border rounded mb-4">
+    <div class="flex gap-2"><button onclick="simpanLibur()" class="flex-1 bg-red-600 text-white py-2 rounded">Tandai Libur</button><button onclick="tutupModal()" class="flex-1 bg-gray-300 py-2 rounded">Batal</button></div></div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function simpanLibur() {
+  const tanggal = document.getElementById('tglLibur').value;
+  const keterangan = document.getElementById('ketLibur').value || 'Libur';
+  if (!tanggal) return alert('Pilih tanggal!');
+  if (jadwalLibur.some(l => l.tanggal === tanggal && l.ekskul === currentUser.ekskul)) return alert('Tanggal sudah ditandai libur!');
+  jadwalLibur.push({ id: Date.now().toString(), ekskul: currentUser.ekskul, tanggal, keterangan });
+  saveJadwalLibur();
+  tutupModal();
+  alert(`Tanggal ${tanggal} ditandai LIBUR!`);
+  showJadwal();
+}
+
+function showHapusLibur() {
+  const liburList = jadwalLibur.filter(l => l.ekskul === currentUser.ekskul);
+  if (liburList.length === 0) return alert('Tidak ada tanggal libur untuk ekskul ini.');
+  let html = `<div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" id="modalJadwal"><div class="bg-white rounded-2xl p-6 w-96"><h3 class="text-xl font-bold mb-4">Hapus Tanda Libur</h3><select id="pilihLibur" class="w-full p-2 border rounded mb-4">`;
+  liburList.forEach(l => { html += `<option value="${l.id}">${l.tanggal} - ${l.keterangan}</option>`; });
+  html += `</select><div class="flex gap-2"><button onclick="hapusLibur()" class="flex-1 bg-green-600 text-white py-2 rounded">Hapus</button><button onclick="tutupModal()" class="flex-1 bg-gray-300 py-2 rounded">Batal</button></div></div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function hapusLibur() {
+  const id = document.getElementById('pilihLibur').value;
+  jadwalLibur = jadwalLibur.filter(l => l.id !== id);
+  saveJadwalLibur();
+  tutupModal();
+  alert('Tanda libur berhasil dihapus!');
+  showJadwal();
+}
+
+function tutupModal() { document.getElementById('modalJadwal')?.remove(); }
+
+// ==================== EVALUASI ====================
+function showEvaluasi() {
+  setActiveNav('navEvaluasi');
+  if (currentUser.role === 'pelatih') {
+    const siswaEkskul = users.filter(u => u.role === 'siswa' && u.ekskul === currentUser.ekskul);
+    let html = `<div class="bg-white rounded-3xl shadow-xl p-6"><h2 class="text-2xl font-bold mb-4"><i class="fas fa-star text-yellow-500"></i> Evaluasi Siswa - ${currentUser.ekskul}</h2>`;
+    if (siswaEkskul.length === 0) html += `<p class="text-gray-500">Belum ada siswa di ekskul ini.</p>`;
+    else { html += `<div class="space-y-4">`; siswaEkskul.forEach(siswa => { const evaluasiSiswa = evaluasiList.filter(e => e.userId === siswa.id).sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal)); html += `<div class="border rounded-xl p-4"><div class="flex items-center gap-3 mb-3"><img src="${siswa.foto}" class="w-12 h-12 rounded-full"><div><h3 class="font-bold">${siswa.fullname}</h3></div></div><textarea id="eval_${siswa.id}" rows="2" class="w-full p-2 border rounded-lg mb-2" placeholder="Tulis evaluasi..."></textarea><button onclick="beriEvaluasi('${siswa.id}', '${siswa.fullname}')" class="bg-blue-600 text-white px-4 py-1 rounded-lg text-sm">➕ Beri Evaluasi</button><div class="mt-3"><p class="text-sm font-semibold">Riwayat:</p>${evaluasiSiswa.length === 0 ? '<p class="text-xs text-gray-400">Belum ada evaluasi</p>' : evaluasiSiswa.map(e => `<div class="bg-gray-50 p-2 rounded mt-1 text-sm"><span class="text-gray-500">${e.tanggal}</span> - ${e.evaluasi}</div>`).join('')}</div></div>`; }); html += `</div>`; }
+    html += `</div>`; document.getElementById('mainContent').innerHTML = html;
+  } else if (currentUser.role === 'admin') {
+    const allSiswa = users.filter(u => u.role === 'siswa');
+    let html = `<div class="bg-white rounded-3xl shadow-xl p-6"><h2 class="text-2xl font-bold mb-4">Semua Evaluasi</h2>`;
+    allSiswa.forEach(siswa => { const evaluasiSiswa = evaluasiList.filter(e => e.userId === siswa.id); html += `<div class="border rounded-xl p-3 mb-3"><div class="flex items-center gap-2"><img src="${siswa.foto}" class="w-8 h-8 rounded-full"><span class="font-bold">${siswa.fullname}</span><span class="text-xs text-gray-500">${siswa.ekskul}</span></div>${evaluasiSiswa.length === 0 ? '<p class="text-gray-400 text-sm">Belum ada evaluasi</p>' : evaluasiSiswa.map(e => `<div class="bg-gray-50 p-2 rounded mt-1 text-sm">${e.tanggal}: ${e.evaluasi}</div>`).join('')}</div>`; });
+    html += `</div>`; document.getElementById('mainContent').innerHTML = html;
+  } else {
+    const evaluasiSaya = evaluasiList.filter(e => e.userId === currentUser.id).sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+    let html = `<div class="bg-white rounded-3xl shadow-xl p-6"><h2 class="text-2xl font-bold mb-4">Evaluasi Saya</h2>`;
+    if (evaluasiSaya.length === 0) html += `<p class="text-gray-500">Belum ada evaluasi.</p>`;
+    else evaluasiSaya.forEach(e => { html += `<div class="bg-blue-50 p-3 rounded-xl mb-2"><p class="text-sm text-gray-500">${e.tanggal} - oleh ${e.pelatihNama}</p><p>${e.evaluasi}</p></div>`; });
+    html += `</div>`; document.getElementById('mainContent').innerHTML = html;
+  }
+}
+
+function beriEvaluasi(siswaId, siswaNama) {
+  const evalText = document.getElementById(`eval_${siswaId}`).value.trim();
+  if (!evalText) return alert('Tulis evaluasi terlebih dahulu!');
+  evaluasiList.push({ id: Date.now().toString(), userId: siswaId, siswaNama, pelatihId: currentUser.id, pelatihNama: currentUser.fullname, ekskul: currentUser.ekskul, evaluasi: evalText, tanggal: new Date().toISOString().split('T')[0], createdAt: new Date().toISOString() });
+  saveEvaluasi();
+  alert('Evaluasi berhasil ditambahkan!');
+  document.getElementById(`eval_${siswaId}`).value = '';
+  showEvaluasi();
+}
+
+// ==================== LAPORAN ====================
+function showLaporan() {
+  setActiveNav('navLaporan');
+  const today = new Date().toISOString().split('T')[0];
+  if (currentUser.role === 'pelatih') {
+    const laporanHariIni = laporanHarian.find(l => l.tanggal === today && l.ekskul === currentUser.ekskul);
+    let html = `<div class="bg-white rounded-3xl shadow-xl p-6"><h2 class="text-2xl font-bold mb-4">Laporan Harian - ${currentUser.ekskul}</h2><textarea id="laporanText" rows="5" class="w-full p-3 border rounded-xl mb-4" placeholder="Tulis laporan kegiatan hari ini...">${laporanHariIni?.laporan || ''}</textarea><button onclick="simpanLaporan()" class="bg-blue-600 text-white px-6 py-2 rounded-xl mb-6">Simpan Laporan</button><h3 class="font-bold text-lg">Riwayat Laporan</h3>`;
+    const laporanEkskul = laporanHarian.filter(l => l.ekskul === currentUser.ekskul).sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+    laporanEkskul.forEach(l => { html += `<div class="border-l-4 ${l.status === 'Tervalidasi' ? 'border-green-500' : 'border-yellow-500'} p-3 mt-2 bg-gray-50 rounded"><p class="text-sm text-gray-500">${l.tanggal} | Status: ${l.status === 'Tervalidasi' ? '✅ Tervalidasi' : '⏳ Menunggu'}</p><p>${l.laporan}</p></div>`; });
+    html += `</div>`; document.getElementById('mainContent').innerHTML = html;
+  } else if (currentUser.role === 'admin') {
+    let html = `<div class="bg-white rounded-3xl shadow-xl p-6"><h2 class="text-2xl font-bold mb-4">Semua Laporan Harian</h2>`;
+    const allLaporan = laporanHarian.sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+    allLaporan.forEach(l => { html += `<div class="border p-3 mb-2 rounded"><p class="font-bold">${l.ekskul} - ${l.tanggal} <span class="text-sm ${l.status === 'Tervalidasi' ? 'text-green-600' : 'text-yellow-600'}">(${l.status})</span></p><p>${l.laporan}</p><small>oleh: ${l.dibuatOleh}</small>${l.status !== 'Tervalidasi' ? `<button onclick="validasiLaporan('${l.id}')" class="mt-2 bg-green-600 text-white px-3 py-1 rounded text-sm">Validasi</button>` : ''}</div>`; });
+    html += `</div>`; document.getElementById('mainContent').innerHTML = html;
+  } else { document.getElementById('mainContent').innerHTML = `<div class="bg-white rounded-3xl shadow-xl p-6 text-center"><p class="text-gray-500">Fitur laporan untuk Pelatih dan Admin.</p></div>`; }
+}
+
+function simpanLaporan() {
+  const today = new Date().toISOString().split('T')[0];
+  const laporan = document.getElementById('laporanText')?.value;
+  if (!laporan) return alert('Tulis laporan terlebih dahulu!');
+  const existing = laporanHarian.findIndex(l => l.tanggal === today && l.ekskul === currentUser.ekskul);
+  if (existing !== -1) laporanHarian[existing] = { ...laporanHarian[existing], laporan, status: 'Pending' };
+  else laporanHarian.push({ id: Date.now().toString(), tanggal: today, ekskul: currentUser.ekskul, laporan, status: 'Pending', dibuatOleh: currentUser.fullname });
+  saveLaporan();
+  alert('Laporan disimpan!');
+  showLaporan();
+}
+
+function validasiLaporan(id) { const idx = laporanHarian.findIndex(l => l.id === id); if (idx !== -1) { laporanHarian[idx].status = 'Tervalidasi'; saveLaporan(); alert('Laporan tervalidasi!'); showLaporan(); } }
+
+// ==================== RIWAYAT & REKAP ====================
+function showRiwayat() {
+  setActiveNav('navRiwayat');
+  const absensiUser = absensiList.filter(a => a.userId === currentUser.id).sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+  const grouped = {};
+  absensiUser.forEach(a => { if (!grouped[a.tanggal]) grouped[a.tanggal] = {}; grouped[a.tanggal][a.jenis] = a.jam; grouped[a.tanggal]['status'] = a.status; grouped[a.tanggal]['alasan'] = a.alasan; });
+  if (Object.keys(grouped).length === 0) return document.getElementById('mainContent').innerHTML = `<div class="bg-white rounded-3xl shadow-xl p-10 text-center"><p>Belum ada riwayat</p></div>`;
+  let html = `<div class="bg-white rounded-3xl shadow-xl p-6"><h2 class="text-2xl font-bold mb-4">Riwayat Absensi</h2><table class="w-full"><thead class="bg-gray-100"><tr><th>Tanggal</th><th>Masuk</th><th>Pulang</th><th>Status</th><th>Keterangan</th></tr></thead><tbody>`;
+  for (const [tanggal, data] of Object.entries(grouped).sort((a,b) => new Date(b[0]) - new Date(a[0]))) { html += `<tr class="border-b"><td class="p-2">${tanggal}</td><td>${data.Masuk || '-'}</td><td>${data.Keluar || '-'}</td><td>${data.status || '-'}</td><td>${data.alasan || '-'}</td></tr>`; }
+  html += `</tbody></table></div>`; document.getElementById('mainContent').innerHTML = html;
+}
+
+function showRekap() {
+  setActiveNav('navRekap');
+  const absensiUser = absensiList.filter(a => a.userId === currentUser.id);
+  const hitung = { Masuk: absensiUser.filter(a => a.jenis === 'Masuk').length, Keluar: absensiUser.filter(a => a.jenis === 'Keluar').length, Izin: absensiUser.filter(a => a.jenis === 'Izin').length, Sakit: absensiUser.filter(a => a.jenis === 'Sakit').length };
+  document.getElementById('mainContent').innerHTML = `<div class="bg-white rounded-3xl shadow-xl p-6"><h2 class="text-2xl font-bold mb-4">Rekap Kehadiran</h2><div class="grid grid-cols-4 gap-4 mb-6"><div class="bg-green-100 p-4 text-center rounded-2xl"><p class="text-3xl font-bold text-green-700">${hitung.Masuk}</p><p>Masuk</p></div><div class="bg-orange-100 p-4 text-center rounded-2xl"><p class="text-3xl font-bold text-orange-700">${hitung.Keluar}</p><p>Pulang</p></div><div class="bg-yellow-100 p-4 text-center rounded-2xl"><p class="text-3xl font-bold text-yellow-700">${hitung.Izin}</p><p>Izin</p></div><div class="bg-red-100 p-4 text-center rounded-2xl"><p class="text-3xl font-bold text-red-700">${hitung.Sakit}</p><p>Sakit</p></div></div><canvas id="rekapChart"></canvas></div>`;
+  new Chart(document.getElementById('rekapChart'), { type: 'bar', data: { labels: ['Masuk','Pulang','Izin','Sakit'], datasets: [{ label: 'Jumlah', data: [hitung.Masuk, hitung.Keluar, hitung.Izin, hitung.Sakit], backgroundColor: ['#22c55e','#f97316','#eab308','#ef4444'] }] } });
+}
+
+// ==================== ADMIN PANEL ====================
+let filterRole = 'semua', searchQuery = '';
+function showAdminPanel() { if (currentUser.role !== 'admin') return alert('Akses khusus admin!'); filterAkun(); }
+function filterAkun() {
+  let filteredUsers = users.filter(u => u.role !== 'admin');
+  if (filterRole !== 'semua') filteredUsers = filteredUsers.filter(u => u.role === filterRole);
+  if (searchQuery) filteredUsers = filteredUsers.filter(u => u.fullname.toLowerCase().includes(searchQuery.toLowerCase()) || u.email.toLowerCase().includes(searchQuery.toLowerCase()));
+  const absensiGrouped = {};
+  absensiList.forEach(a => { const key = `${a.userId}_${a.tanggal}`; if (!absensiGrouped[key]) absensiGrouped[key] = { nama: a.nama, ekskul: a.ekskul, tanggal: a.tanggal, masuk: '-', pulang: '-' }; if (a.jenis === 'Masuk') absensiGrouped[key].masuk = a.jam; if (a.jenis === 'Keluar') absensiGrouped[key].pulang = a.jam; });
+  const absensiListGrouped = Object.values(absensiGrouped).sort((a,b) => new Date(b.tanggal) - new Date(a.tanggal));
+  const laporanPending = laporanHarian.filter(l => l.status !== 'Tervalidasi');
+  let html = `<div class="bg-white rounded-3xl shadow-xl p-6"><div class="flex justify-between items-center mb-4 flex-wrap gap-3"><h2 class="text-2xl font-bold"><i class="fas fa-shield-alt text-red-600"></i> Panel Admin</h2><button onclick="resetAllData()" class="bg-red-600 text-white px-4 py-2 rounded-xl"><i class="fas fa-trash"></i> Reset Absensi</button></div>
+  <div class="bg-yellow-50 p-4 rounded-xl mb-6"><h3 class="text-lg font-bold mb-3">📋 Laporan Perlu Validasi (${laporanPending.length})</h3>${laporanPending.length === 0 ? '<p class="text-gray-500">Tidak ada laporan.</p>' : laporanPending.map(l => `<div class="bg-white p-3 rounded-lg mb-2 flex justify-between items-center flex-wrap"><div><span class="font-bold">${l.ekskul}</span> - ${l.tanggal}<br><small>${l.laporan.substring(0, 100)}...</small></div><button onclick="validasiLaporan('${l.id}')" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm">✓ Validasi</button></div>`).join('')}</div>
+  <div class="bg-blue-50 p-4 rounded-xl mb-6"><h3 class="text-lg font-bold mb-3">+ Tambah Akun Pelatih</h3><div class="grid grid-cols-1 md:grid-cols-4 gap-3"><input type="text" id="newPelatihNama" placeholder="Nama" class="p-2 border rounded"><input type="email" id="newPelatihEmail" placeholder="Email" class="p-2 border rounded"><input type="password" id="newPelatihPassword" placeholder="Password" class="p-2 border rounded" value="12345"><select id="newPelatihEkskul" class="p-2 border rounded"><option value="">Pilih Ekskul</option><option value="Pramuka">Pramuka</option><option value="Paskibra">Paskibra</option><option value="PMR">PMR</option></select></div><button onclick="tambahPelatih()" class="mt-3 bg-green-600 text-white px-4 py-2 rounded-lg">+ Tambah Pelatih</button></div>
+  <div class="flex flex-wrap gap-3 mb-4"><div class="flex gap-2"><button onclick="setFilter('semua')" class="px-3 py-1 rounded ${filterRole === 'semua' ? 'bg-blue-600 text-white' : 'bg-gray-200'}">Semua</button><button onclick="setFilter('siswa')" class="px-3 py-1 rounded ${filterRole === 'siswa' ? 'bg-blue-600 text-white' : 'bg-gray-200'}">Siswa</button><button onclick="setFilter('pelatih')" class="px-3 py-1 rounded ${filterRole === 'pelatih' ? 'bg-blue-600 text-white' : 'bg-gray-200'}">Pelatih</button></div><input type="text" id="searchInput" placeholder="Cari nama/email..." class="p-2 border rounded w-64" value="${searchQuery}" onkeyup="document.getElementById('cariBtn').click()"><button id="cariBtn" onclick="setSearch()" class="bg-blue-600 text-white px-4 py-2 rounded"><i class="fas fa-search"></i> Cari</button><button onclick="resetFilter()" class="bg-gray-500 text-white px-4 py-2 rounded"><i class="fas fa-undo"></i> Reset</button></div>
+  <div class="grid md:grid-cols-2 gap-6"><div><h3 class="text-xl font-bold mb-2">Akun (${filteredUsers.length})</h3><div class="max-h-96 overflow-auto border rounded p-2">${filteredUsers.map(u => `<div class="flex justify-between items-center border-b p-2"><div class="flex items-center gap-2"><img src="${u.foto}" class="w-8 h-8 rounded-full"><span><b>${u.fullname}</b><br><small>${u.role} - ${u.ekskul}</small></span></div><button onclick="hapusAkun('${u.id}')" class="text-red-600"><i class="fas fa-trash"></i></button></div>`).join('')}</div></div>
+  <div><h3 class="text-xl font-bold mb-2">Absensi (Masuk/Pulang)</h3><div class="max-h-96 overflow-auto border rounded p-2"><table class="w-full text-sm"><thead class="sticky top-0 bg-gray-100"><tr><th>Nama</th><th>Ekskul</th><th>Tgl</th><th>Masuk</th><th>Pulang</th></tr></thead><tbody>${absensiListGrouped.map(a => `<tr class="border-b"><td class="p-1">${a.nama}</td><td>${a.ekskul}</td><td>${a.tanggal}</td><td class="text-green-600">${a.masuk}</td><td class="text-orange-600">${a.pulang}</td></tr>`).join('')}</tbody></table></div><button onclick="exportDataCSV()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded w-full"><i class="fas fa-download"></i> Ekspor CSV</button></div></div></div>`;
+  document.getElementById('mainContent').innerHTML = html;
+}
+function setFilter(r) { filterRole = r; filterAkun(); }
+function setSearch() { searchQuery = document.getElementById('searchInput').value; filterAkun(); }
+function resetFilter() { filterRole = 'semua'; searchQuery = ''; document.getElementById('searchInput').value = ''; filterAkun(); }
+function tambahPelatih() {
+  const fullname = document.getElementById('newPelatihNama').value.trim(), email = document.getElementById('newPelatihEmail').value.trim(), password = document.getElementById('newPelatihPassword').value, ekskul = document.getElementById('newPelatihEkskul').value;
+  if (!fullname || !email || !password || !ekskul) return alert('Lengkapi data!');
+  if (users.some(u => u.email === email)) return alert('Email terdaftar!');
+  users.push({ id: Date.now().toString(), fullname, email, password, role: 'pelatih', ekskul, phone: '-', gender: '-', birth: '-', foto: `https://ui-avatars.com/api/?background=2563eb&color=fff&name=${fullname.replace(' ', '+')}&size=128`, createdAt: new Date().toISOString() });
+  saveUsers(); alert('Pelatih ditambahkan!'); filterAkun();
+}
+function hapusAkun(id) { if (confirm('Hapus akun?')) { users = users.filter(u => u.id !== id); absensiList = absensiList.filter(a => a.userId !== id); evaluasiList = evaluasiList.filter(e => e.userId !== id); saveUsers(); saveAbsensi(); saveEvaluasi(); filterAkun(); } }
+function resetAllData() { if (confirm('Reset semua data?')) { absensiList = []; laporanHarian = []; saveAbsensi(); saveLaporan(); alert('Data direset!'); filterAkun(); } }
+function exportDataCSV() { let csv = "Nama,Ekskul,Tanggal,Jam Masuk,Jam Pulang\n"; const grouped = {}; absensiList.forEach(a => { const key = `${a.userId}_${a.tanggal}`; if (!grouped[key]) grouped[key] = { nama: a.nama, ekskul: a.ekskul, tanggal: a.tanggal, masuk: '-', pulang: '-' }; if (a.jenis === 'Masuk') grouped[key].masuk = a.jam; if (a.jenis === 'Keluar') grouped[key].pulang = a.jam; }); Object.values(grouped).forEach(a => csv += `${a.nama},${a.ekskul},${a.tanggal},${a.masuk},${a.pulang}\n`); const blob = new Blob([csv], {type: 'text/csv'}); const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = `trackskull_${new Date().toISOString().split('T')[0]}.csv`; link.click(); }
+
+const savedUser = localStorage.getItem('currentUser_trackskull');
+if (savedUser) { currentUser = JSON.parse(savedUser); if (users.find(u => u.id === currentUser.id)) showDashboard(); else localStorage.removeItem('currentUser_trackskull'); }
+</script>
+</body>
+</html>
